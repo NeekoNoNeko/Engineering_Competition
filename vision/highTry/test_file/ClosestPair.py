@@ -1,4 +1,4 @@
-import sys
+import math
 
 # 定义一个函数来计算两点之间的欧几里得距离
 def dist(a, b):
@@ -56,7 +56,7 @@ def closest_in_strip(points, d_min):
 # 暴力方法计算最近点对的函数
 def brute_force(points):
     # 初始化最小距离为无穷大
-    min_dist = sys.float_info.max
+    min_dist = math.inf
     best_pair = None
     # 计算所有点对的距离，找出最小值
     for i in range(len(points)):
@@ -68,6 +68,6 @@ def brute_force(points):
     return min_dist, best_pair
 
 # 示例使用
-points = [(1, 2), (3, 4), (2, 3), (5, 1), (7, 7), (9, 1), (3, 5)]
+points = [(1, 2), (2, 3), (5, 1), (7, 7), (9, 1), (3, 5)]
 distance, pair = closest_pair(points, 0, len(points) - 1)
 print("The closest pair is:", pair)
