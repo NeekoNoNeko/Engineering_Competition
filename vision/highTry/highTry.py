@@ -249,6 +249,11 @@ class AnalyzeData:
             colour_index = 1
 
         if self.mode == 1:
+            # 做一个是否有色卡列表的判断
+            while len(identify_color_cards.ColourCardList ) < 2:
+                print("做色卡判断")
+                identify_color_cards.find()
+
             print("into do analyze")
             tem_colour = identify_color_cards.code_to_colour[identify_color_cards.ColourCardList[colour_index]]
             print("tem_colour: ", tem_colour)
