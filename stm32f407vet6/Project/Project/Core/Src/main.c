@@ -70,7 +70,9 @@ void OLED_Showcolor(uint8_t colorflag1, uint8_t colorflag2);
 
 uint8_t KeyNum;
 
-int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
+//int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
+__IO uint16_t Emm_speed = 500;		//42步进电机运行速度，定位电机（即X,Y,Z轴电机）
+__IO uint8_t Emm_Z_acc = 30;		//Z轴定位电机加速度
 
 /*openmv*/
 __IO float openmv_x, openmv_y;			//openmv坐标数据
@@ -193,11 +195,11 @@ int main(void)
 		
 		/*开始定位药丸*/
 		delay_ms(1000);
-		X_Emm_V5_position(tray_x + openmv_x + err_x, 500);
-		Y_Emm_V5_position(tray_y + openmv_y + err_y, 500);
+		X_Emm_V5_position(tray_x + openmv_x + err_x, Emm_speed);
+		Y_Emm_V5_position(tray_y + openmv_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 
-		Z_Emm_V5_position(1.55, 500);
+		Z_Emm_V5_position(1.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -205,15 +207,15 @@ int main(void)
 		valve_control(0);
 		
 		delay_ms(1000);		//预留气泵吸球稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药板位置*/
-		X_Emm_V5_position(plate_x + plate_err_x + err_x, 500);
-		Y_Emm_V5_position(plate_y + plate_err_y + err_y, 500);
+		X_Emm_V5_position(plate_x + plate_err_x + err_x, Emm_speed);
+		Y_Emm_V5_position(plate_y + plate_err_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(2.4, 500);
+		Z_Emm_V5_position(2.4, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -292,11 +294,11 @@ int main(void)
 		HAL_UART_Transmit(&huart5, send_statusdata, 5, 50);
 		
 		/*开始定位药丸*/
-		X_Emm_V5_position(tray_x + openmv_x + err_x, 500);
-		Y_Emm_V5_position(tray_y + openmv_y + err_y, 500);
+		X_Emm_V5_position(tray_x + openmv_x + err_x, Emm_speed);
+		Y_Emm_V5_position(tray_y + openmv_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 
-		Z_Emm_V5_position(1.55, 500);
+		Z_Emm_V5_position(1.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -304,15 +306,15 @@ int main(void)
 		valve_control(0);
 		
 		delay_ms(1000);		//预留气泵吸球稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药瓶位置*/
-		X_Emm_V5_position(bottle_x + err_x, 500);
-		Y_Emm_V5_position(bottle_y + err_y, 500);
+		X_Emm_V5_position(bottle_x + err_x, Emm_speed);
+		Y_Emm_V5_position(bottle_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(7.55, 500);
+		Z_Emm_V5_position(7.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -335,15 +337,15 @@ int main(void)
 		OLED_Update();
 		
 		/*******************************************************************************/
-		Z_Emm_V5_position(12, 300);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位瓶盖位置*/
-		X_Emm_V5_position(cap_x + err_x, 500);
-		Y_Emm_V5_position(cap_y + err_y, 500);
+		X_Emm_V5_position(cap_x + err_x, Emm_speed);
+		Y_Emm_V5_position(cap_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(1.3, 500);
+		Z_Emm_V5_position(1.3, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -352,15 +354,15 @@ int main(void)
 		
 		/*******************************************************************************/
 		delay_ms(1000);		//预留气泵吸瓶盖稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药瓶位置*/
-		X_Emm_V5_position(bottle_x + err_x, 500);
-		Y_Emm_V5_position(bottle_y + err_y, 500);
+		X_Emm_V5_position(bottle_x + err_x, Emm_speed);
+		Y_Emm_V5_position(bottle_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(9, 500);
+		Z_Emm_V5_position(9, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -368,9 +370,9 @@ int main(void)
 		valve_control(1);
 		
 		delay_ms(1000);
-		Clamp_Emm_V5_position(10.35, 100);
+		Clamp_Emm_V5_position(10.35, 100, 30);		//位置，速度，加速度
 		
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		valve_control(0);	//电磁阀不能长时间打开，否则可能会发热严重

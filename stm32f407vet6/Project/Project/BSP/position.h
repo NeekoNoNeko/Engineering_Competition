@@ -24,7 +24,7 @@
 void X_Emm_V5_position(float x, uint16_t velocity);
 void Y_Emm_V5_position(float y, uint16_t velocity);
 void Z_Emm_V5_position(float z, uint16_t velocity);
-void Clamp_Emm_V5_position(float clamp, uint16_t velocity);
+void Clamp_Emm_V5_position(float clamp, uint16_t velocity, uint8_t accelerated_speed);
 void XYZ_Return_Origin(uint8_t Mode);
 
 void Plate_HolePitch_position(void);

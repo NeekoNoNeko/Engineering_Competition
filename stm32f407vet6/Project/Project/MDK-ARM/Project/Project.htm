@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Project\Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Project\Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Thu Sep 19 17:54:16 2024
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Thu Sep 19 22:10:36 2024
 <BR><P>
 <H3>Maximum Stack Usage =        200 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -577,7 +577,7 @@ Global Symbols
 </UL>
 <P><STRONG><a name="[12b]"></a>__semihosting_library_function</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, indicate_semi.o(.text), UNUSED)
 
-<P><STRONG><a name="[76]"></a>Clamp_Emm_V5_position</STRONG> (Thumb, 204 bytes, Stack size 64 bytes, position.o(i.Clamp_Emm_V5_position))
+<P><STRONG><a name="[76]"></a>Clamp_Emm_V5_position</STRONG> (Thumb, 208 bytes, Stack size 64 bytes, position.o(i.Clamp_Emm_V5_position))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = Clamp_Emm_V5_position &rArr; __hardfp_round &rArr; _drnd &rArr; __fpl_dnaninf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_round
@@ -1212,7 +1212,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_ConfigChannel
 </UL>
 
-<P><STRONG><a name="[cc]"></a>Tray_position</STRONG> (Thumb, 62 bytes, Stack size 8 bytes, position.o(i.Tray_position))
+<P><STRONG><a name="[cc]"></a>Tray_position</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, position.o(i.Tray_position))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = Tray_position &rArr; Z_Emm_V5_position &rArr; __hardfp_round &rArr; _drnd &rArr; __fpl_dnaninf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;z_arrive_check
@@ -1309,7 +1309,7 @@ Global Symbols
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[cd]"></a>Z_Emm_V5_position</STRONG> (Thumb, 204 bytes, Stack size 64 bytes, position.o(i.Z_Emm_V5_position))
+<P><STRONG><a name="[cd]"></a>Z_Emm_V5_position</STRONG> (Thumb, 206 bytes, Stack size 64 bytes, position.o(i.Z_Emm_V5_position))
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = Z_Emm_V5_position &rArr; __hardfp_round &rArr; _drnd &rArr; __fpl_dnaninf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_round
@@ -1417,7 +1417,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[6d]"></a>main</STRONG> (Thumb, 1570 bytes, Stack size 24 bytes, main.o(i.main))
+<P><STRONG><a name="[6d]"></a>main</STRONG> (Thumb, 1566 bytes, Stack size 24 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = main &rArr; SystemClock_Config &rArr; HAL_RCC_ClockConfig &rArr; HAL_RCC_GetSysClockFreq &rArr; __aeabi_uldivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;z_arrive_check
