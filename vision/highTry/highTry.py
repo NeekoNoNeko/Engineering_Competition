@@ -67,7 +67,7 @@ class SendData:
         print("send_colour_list:", send_colour_list)
         # send_colour_list[0] = identify_color_cards.colour_to_code[send_colour_list[0]]
         # send_colour_list[1] = identify_color_cards.colour_to_code[send_colour_list[1]]
-        
+
         self._make_relative_data()
         #quadrant符号象限位判断
         if self.relative_data[0] > 0:
@@ -278,7 +278,7 @@ class AnalyzeData:
             print(send_colour_list)
             send_colour_list[0] = identify_color_cards.colour_to_code[send_colour_list[0]]
             send_colour_list[1] = identify_color_cards.colour_to_code[send_colour_list[1]]
-            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], analyzeData.position,
+            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], analyzeData.position = 1,
                                         0,0,0,0,0, 0xFF])
                         # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
             print(uartAddr.write(sent_uart_data))# 开始启动!!!
