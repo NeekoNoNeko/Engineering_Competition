@@ -22,6 +22,8 @@ K = 0.5767220
 uartAddr = UART(3, 9600)
 send_flag = True
 
+pyb.delay(5000)
+
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
@@ -166,7 +168,8 @@ class IdentifyColorCards:
     colour_to_code = {"red": 1, "green": 2, "blue": 4}
     def __init__(self):
         self.colors = None
-        self.ColourCardList = []
+        # self.ColourCardList = []
+        self.ColourCardList = [1, 2]
 
     def Get_MaxIndex(self, blobs):
         maxb_index = 0  # 最大色块索引初始化
@@ -250,9 +253,9 @@ class AnalyzeData:
 
         if self.mode == 1:
             # 做一个是否有色卡列表的判断
-            while len(identify_color_cards.ColourCardList ) < 2:
-                print("做色卡判断")
-                identify_color_cards.find()
+            # while len(identify_color_cards.ColourCardList ) < 2:
+            #     print("做色卡判断")
+            #     identify_color_cards.find()
 
             print("into do analyze")
             tem_colour = identify_color_cards.code_to_colour[identify_color_cards.ColourCardList[colour_index]]
@@ -278,7 +281,7 @@ class AnalyzeData:
             print(send_colour_list)
             send_colour_list[0] = identify_color_cards.colour_to_code[send_colour_list[0]]
             send_colour_list[1] = identify_color_cards.colour_to_code[send_colour_list[1]]
-            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], analyzeData.position,
+            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 1,
                                         0,0,0,0,0, 0xFF])
                         # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
             print(uartAddr.write(sent_uart_data))# 开始启动!!!

@@ -2,7 +2,7 @@
 #找色块后找亮光
 import sensor, image, time
 from machine import UART
-red_threshold = [(0, 50, 4, 60, 0, 60)]
+red_threshold = [(0, 42, 4, 53, -1, 41)]
 #(9, 35, -9, 36, -31, 28)
 blue_threshold = [(0, 60, -10, 127, -128, -10)]
 green_threshold = [(24, 70, -128, -5, -128, 15)]
@@ -17,7 +17,8 @@ middle = (160, 120)
 K = 0.5767220
 uartAddr = UART(3, 9600)
 send_flag = True
-
+max_pixels = 25
+#max_pixels = 50
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
@@ -38,7 +39,7 @@ class Movement:
         print("catch")
         # sensor.skip_frames(time=2000)
         img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
-        blobs = img.find_blobs(self.colour, area_threshold=300, margin=10)# type(blob) is list
+        blobs = img.find_blobs(self.colour, area_threshold=300, margin=0)# type(blob) is list
         print(blobs)
         print("blobs数量:", len(blobs))
         # 寻找对应阈值的色块，阈值小于300像素的色块过滤掉，合并相邻像素在10个像素内的色块
@@ -48,11 +49,12 @@ class Movement:
             img.draw_rectangle(b.rect())
             img.draw_cross(b.cx(), b.cy())
             img.draw_line((159, 120, b[5], b[6]), color=(0, 0, 0), thickness=2)# color is black
-        # print("\n\n")
-        img.draw_cross(160, 120, color=(0, 255, 0), size=20, thickness=3)# green
+#         print("\n\n")
+        img.draw_cross(160, 120, color=(0, 255, 0), size=20, thickness=3)# green 中心十字
 
         # 500-1000 色块大小
         if blobs:
+#            img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
             print("进入比较色块大小")
             if 500 < blobs[0].pixels() < 1000:
                 print("进入500-1000")
@@ -65,21 +67,30 @@ class Movement:
             elif blobs[0].pixels() > 1000:
                 print("进入>1000")
                 roi = blobs[0].rect()
-                # img.mean(2)             #均值滤波,均值滤波是最快的滤波,size=1则是3x3的核，size=2则是5x5的核,不应该使用大于2的值。
+#                img.mean(1)             #均值滤波,均值滤波是最快的滤波,size=1则是3x3的核，size=2则是5x5的核,不应该使用大于2的值。
+                img.gaussian(2)
                 img.binary(self.colour)
-                img.erode(2)
+                img.erode(1)
                 img.flood_fill(10, 10, clear_background=False)
-                bright_spot = img.find_blobs([(0, 76, -128, 127, -128, 127)], area_threshold=10, margin=100, roi=roi)
-                # img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
+#                img.mean(1)
+                img.dilate(1)
+                bright_spot = img.find_blobs([(0, 55, -128, 127, -128, 127)], area_threshold=10, margin=100, roi=roi)
+#                img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
+                for b in bright_spot:
+                    print("bpixels: ", b.pixels())
+
+
                 if bright_spot:
                     for b in bright_spot:
-                        if b.pixels() > 60:
+                        print("bpixels: ", b.pixels())
+                        if b.pixels() > max_pixels:
                             continue
-                        img.draw_cross(b.cx(), b.cy(), color=(255, 0, 255), thickness=3)
+#                        img.draw_cross(b.cx(), b.cy(), color=(255, 0, 255), thickness=3)
+                        img.draw_rectangle(b.rect(), color=(0,255,255))
                         print("X:", b.cx(), " Y:", b.cy())
                         self.x = b.cx()
                         self.y = b.cy()
-                        return self.x, self.y
+#                        return self.x, self.y
                         # blob.cx() 返回色块的外框的中心x坐标（int），也可以通过blob[5]来获取。
                         # blob.cy() 返回色块的外框的中心y坐标（int），也可以通过blob[6]来获取。
         else: return None
