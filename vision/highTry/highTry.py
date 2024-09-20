@@ -4,7 +4,6 @@
 import sensor, image, time, pyb, math
 from machine import UART
 
-from vision.highTry.test_file.ClosestPair import closest_pair
 
 red_threshold = [(0, 50, 4, 60, 0, 60)]
 #(9, 35, -9, 36, -31, 28)
@@ -72,7 +71,7 @@ class SendData:
         print("send_colour_list:", send_colour_list)
         # send_colour_list[0] = identify_color_cards.colour_to_code[send_colour_list[0]]
         # send_colour_list[1] = identify_color_cards.colour_to_code[send_colour_list[1]]
-        
+
         self._make_relative_data()
         #quadrant符号象限位判断
         if self.relative_data[0] > 0:
@@ -229,7 +228,10 @@ class Movement:
                 bright_spot = img.find_blobs([(0, 76, -128, 127, -128, 127)], area_threshold=10, margin=100)
                 for b in bright_spot:
                     closest_pair_calculation.get_point_list( (b.x(), b.y()) )
-                closest_pair_calculation.calculation()
+                dist, pair_point = closest_pair_calculation.calculation()
+                for b in bright_spot:
+                    if (b.x(), b.y()) in pair_point:
+                        bright_spot.remove(b)
 
                 img.draw_cross(bright_spot[0].cx(), bright_spot[0].cy(), color=(0, 255, 0))
                 print("X:", bright_spot[0].cx(), " Y:", bright_spot[0].cy())
