@@ -163,7 +163,7 @@ class Movement:
 #                img.gaussian(2)
                 img.erode(1)
                 img.flood_fill(10, 10, clear_background=False)
-                img.dilate(1)
+#                img.dilate(1)
                 bright_spot = img.find_blobs([(0, 55, -128, 127, -128, 127)], area_threshold=10, margin=0, roi=roi)
 #                img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
                 print("len bright_spot:", len(bright_spot))
@@ -181,7 +181,7 @@ class Movement:
                     print("point_list:", closest_pair_calculation.point_list)
                     closest_pair_calculation.calculation()
                     pair_point = closest_pair_calculation.closest_pair_points
-                    closest_pair_calculation.closest_pair_points = []
+#                    closest_pair_calculation.closest_pair_points = []
 
                     print("2pair_point:", pair_point)
                     for b in bright_spot:
@@ -191,10 +191,11 @@ class Movement:
                             img.draw_cross(b.cx(), b.cy(), color=(255, 0, 0), thickness=2)
                             print("remove1")
                             bright_spot.remove(b)
-                            print("remove2")
+                            print("remove:", (b.cx(), b.cy()))
 
 
                 if bright_spot:
+                    print("
                     for b in bright_spot:
                         print("bpixels: ", b.pixels())
                         if b.pixels() > max_pixels:
