@@ -4,7 +4,7 @@ import sensor, image, time, math
 from machine import UART
 
 
-red_threshold = [(14, 40, 10, 57, 2, 40)]
+red_threshold = [(17, 37, 11, 46, 2, 51)]
 #(9, 35, -9, 36, -31, 28)
 blue_threshold = [(0, 60, -10, 127, -128, -10)]
 green_threshold = [(24, 70, -128, -5, -128, 15)]
@@ -19,8 +19,8 @@ middle = (160, 120)
 K = 0.5767220
 uartAddr = UART(3, 9600)
 send_flag = True
-max_pixels = 25
-#max_pixels = 50
+# max_pixels = 25
+max_pixels = 50
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
@@ -136,7 +136,7 @@ class Movement:
 
         for b in blobs:
             print(b.pixels())
-#            img.draw_rectangle(b.rect())
+            # img.draw_rectangle(b.rect())
 #            img.draw_cross(b.cx(), b.cy())
 #            img.draw_line((159, 120, b[5], b[6]), color=(0, 0, 0), thickness=2)# color is black
 #         print("\n\n")
@@ -157,6 +157,7 @@ class Movement:
             elif blobs[0].pixels() > 800:
                 print("进入>800")
                 roi = blobs[0].rect()
+
 #                img.mean(1)             #均值滤波,均值滤波是最快的滤波,size=1则是3x3的核，size=2则是5x5的核,不应该使用大于2的值。
                 img.gaussian(2)
                 img.binary(self.colour)
@@ -164,9 +165,12 @@ class Movement:
                 img.erode(1)
                 img.flood_fill(10, 10, clear_background=False)
 #                img.dilate(1)
-                bright_spot = img.find_blobs([(0, 55, -128, 127, -128, 127)], area_threshold=10, margin=0, roi=roi)
+                bright_spot = img.find_blobs([(0, 80, -128, 127, -128, 127)], area_threshold=10, margin=0, roi=roi)
+                img.draw_rectangle(roi, color=(0, 50, 255))  # 青色矩形
 #                img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
-                print("len bright_spot:", len(bright_spot))
+                print("1len bright_spot:", len(bright_spot))
+
+
                 if len(bright_spot) > 2:
                     print("if len >2")
                     temp_point_list = []
@@ -188,24 +192,25 @@ class Movement:
                         print("ready to move")
                         print("(b.cx(), b.cy()): ", (b.cx(), b.cy()))
                         if (b.cx(), b.cy()) in pair_point:
-                            img.draw_cross(b.cx(), b.cy(), color=(255, 0, 0), thickness=2)
+                            img.draw_cross(b.cx(), b.cy(), color=(255, 0, 0), thickness=2) # 红色叉
                             print("remove1")
                             bright_spot.remove(b)
                             print("remove:", (b.cx(), b.cy()))
 
 
                 if bright_spot:
-                    print("
+                    print("3bright_spot:", bright_spot)
+                    print("2len bright_spot:", len(bright_spot))
                     for b in bright_spot:
-                        print("bpixels: ", b.pixels())
+                        print("b_pixels: ", b.pixels())
                         if b.pixels() > max_pixels:
                             print("large pixel:", b.pixels())
                             continue
 #                        img.draw_cross(b.cx(), b.cy(), color=(255, 0, 255), thickness=3)
-                        img.draw_rectangle(b.rect(), color=(0,255,255))
+                        img.draw_rectangle(b.rect(), color=(0,255,255)) # 青色矩形
                         # print("X:", b.cx(), " Y:", b.cy())
-                        # self.x = b.cx()
-                        # self.y = b.cy()
+#                         self.x = b.cx()
+#                         self.y = b.cy()
 #                        return self.x, self.y
                         # blob.cx() 返回色块的外框的中心x坐标（int），也可以通过blob[5]来获取。
                         # blob.cy() 返回色块的外框的中心y坐标（int），也可以通过blob[6]来获取。

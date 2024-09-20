@@ -28,5 +28,6 @@ sensor.skip_frames(time = 2000)
 clock = time.clock()
 
 while(True):
-    print("-----------begin----------")
+#    print("-----------begin----------")
     img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
+    img.gaussian(2)
