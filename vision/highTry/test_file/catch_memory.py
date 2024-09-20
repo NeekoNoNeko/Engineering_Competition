@@ -4,7 +4,7 @@ import sensor, image, time, math
 from machine import UART
 
 
-red_threshold = [(0, 42, 4, 53, -1, 41)]
+red_threshold = [(14, 40, 10, 57, 2, 40)]
 #(9, 35, -9, 36, -31, 28)
 blue_threshold = [(0, 60, -10, 127, -128, -10)]
 green_threshold = [(24, 70, -128, -5, -128, 15)]
@@ -30,15 +30,24 @@ sensor.skip_frames(time = 2000)
 
 class ClosestPair:
     point_list = []
+    closest_pair_points = []
 
     def get_point_list(self, x):
-        self.point_list.append(x)
+        self.point_list = x
 
     def calculation(self):
+        self.closest_pair_points = []
         distances, pair = self.closest_pair(self.point_list, 0, len(self.point_list) - 1)
+        for i in range(2):
+            self.closest_pair_points.append(pair[i])
+        # self.closest_pair_points[0] = pair[0]
+        # self.closest_pair_points[1] = pair[1]
         print("min distance:", distances)
         print("The closest pair is:", pair)
-        return pair
+
+        # return pair
+
+
 
     # 定义一个函数来计算两点之间的欧几里得距离
     def dist(self,a, b):
@@ -47,28 +56,28 @@ class ClosestPair:
     # 定义一个函数来找到一组点中的最近点对
     def closest_pair(self, points, left, right):
         # 当点的数量少于等于3时，直接使用暴力方法计算最小距离
-        if right - left <= 3:
-            return self.brute_force(points[left:right + 1])
+        # if right - left <= 3:
+            return self.brute_force(points)
 
         # 找到中点，将点集分成两部分
-        mid = (left + right) // 2
-        p1 = points[left:mid + 1]
-        p2 = points[mid + 1:right + 1]
+        # mid = (left + right) // 2
+        # p1 = points[left:mid + 1]
+        # p2 = points[mid + 1:right + 1]
+        #
+        # # 递归地在两个子集中找到最近点对
+        # d1, pair1 = self.closest_pair(points, left, mid)
+        # d2, pair2 = self.closest_pair(points, mid + 1, right)
+        # d_min = min(d1, d2)
+        # best_pair = pair1 if d1 <= d2 else pair2
+        #
+        # # 合并两个子集，并找到横跨中点的最近点对
+        # merge_points = self.merge(p1, p2)
+        # d_strip, strip_pair = self.closest_in_strip(merge_points, d_min)
+        # if d_strip < d_min:
+        #     d_min = d_strip
+        #     best_pair = strip_pair
 
-        # 递归地在两个子集中找到最近点对
-        d1, pair1 = self.closest_pair(points, left, mid)
-        d2, pair2 = self.closest_pair(points, mid + 1, right)
-        d_min = min(d1, d2)
-        best_pair = pair1 if d1 <= d2 else pair2
-
-        # 合并两个子集，并找到横跨中点的最近点对
-        merge_points = self.merge(p1, p2)
-        d_strip, strip_pair = self.closest_in_strip(merge_points, d_min)
-        if d_strip < d_min:
-            d_min = d_strip
-            best_pair = strip_pair
-
-        return d_min, best_pair
+        # return d_min, best_pair
 
     # 合并两个子集的函数
     def merge(self, p1, p2):
@@ -95,7 +104,7 @@ class ClosestPair:
 
     def brute_force(self, points):
         # 初始化最小距离为无穷大
-        min_dist = math.inf
+        min_dist = 100000
         best_pair = None
         # 计算所有点对的距离，找出最小值
         for i in range(len(points)):
@@ -127,58 +136,83 @@ class Movement:
 
         for b in blobs:
             print(b.pixels())
-            img.draw_rectangle(b.rect())
-            img.draw_cross(b.cx(), b.cy())
-            img.draw_line((159, 120, b[5], b[6]), color=(0, 0, 0), thickness=2)# color is black
+#            img.draw_rectangle(b.rect())
+#            img.draw_cross(b.cx(), b.cy())
+#            img.draw_line((159, 120, b[5], b[6]), color=(0, 0, 0), thickness=2)# color is black
 #         print("\n\n")
-        img.draw_cross(160, 120, color=(0, 255, 0), size=20, thickness=3)# green 中心十字
+#        img.draw_cross(160, 120, color=(0, 255, 0), size=20, thickness=3)# green 中心十字
 
         # 500-1000 色块大小
         if blobs:
 #            img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
             print("进入比较色块大小")
-            if 500 < blobs[0].pixels() < 1000:
-                print("进入500-1000")
+            if 500 < blobs[0].pixels() < 800:
+                print("进入500-800")
                 img.draw_cross(blobs[0].cx(), blobs[0].cy(), color=(255, 0, 255), thickness=3)
                 print("X:", blobs[0].cx(), " Y:", blobs[0].cy())
                 self.x = blobs[0].cx()
                 self.y = blobs[0].cy()
                 return self.x, self.y
 
-            elif blobs[0].pixels() > 1000:
-                print("进入>1000")
+            elif blobs[0].pixels() > 800:
+                print("进入>800")
                 roi = blobs[0].rect()
 #                img.mean(1)             #均值滤波,均值滤波是最快的滤波,size=1则是3x3的核，size=2则是5x5的核,不应该使用大于2的值。
                 img.gaussian(2)
                 img.binary(self.colour)
+#                img.gaussian(2)
                 img.erode(1)
                 img.flood_fill(10, 10, clear_background=False)
-#                img.mean(1)
                 img.dilate(1)
-                bright_spot = img.find_blobs([(0, 55, -128, 127, -128, 127)], area_threshold=10, margin=100, roi=roi)
+                bright_spot = img.find_blobs([(0, 55, -128, 127, -128, 127)], area_threshold=10, margin=0, roi=roi)
 #                img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
-                for b in bright_spot:
-                    print("bpixels: ", b.pixels())
-                    closest_pair_calculation.get_point_list((b.x(), b.y()))
-                dist, pair_point = closest_pair_calculation.calculation()
-                for b in bright_spot:
-                    if (b.x(), b.y()) in pair_point:
-                        bright_spot.remove(b)
+                print("len bright_spot:", len(bright_spot))
+                if len(bright_spot) > 2:
+                    print("if len >2")
+                    temp_point_list = []
+                    for b in bright_spot:
+                        temp_point = (b.cx(), b.cy())
+                        temp_point_list.append(temp_point)
+                        print("temp_point:", temp_point)
+                        print("1(b.cx(), b.cy())", (b.cx(), b.cy()))
+                        print("bpixels: ", b.pixels())
+                    closest_pair_calculation.get_point_list(temp_point_list)
+                    print("temp_point_list:", temp_point_list)
+                    print("point_list:", closest_pair_calculation.point_list)
+                    closest_pair_calculation.calculation()
+                    pair_point = closest_pair_calculation.closest_pair_points
+                    closest_pair_calculation.closest_pair_points = []
+
+                    print("2pair_point:", pair_point)
+                    for b in bright_spot:
+                        print("ready to move")
+                        print("(b.cx(), b.cy()): ", (b.cx(), b.cy()))
+                        if (b.cx(), b.cy()) in pair_point:
+                            img.draw_cross(b.cx(), b.cy(), color=(255, 0, 0), thickness=2)
+                            print("remove1")
+                            bright_spot.remove(b)
+                            print("remove2")
 
 
                 if bright_spot:
                     for b in bright_spot:
                         print("bpixels: ", b.pixels())
                         if b.pixels() > max_pixels:
+                            print("large pixel:", b.pixels())
                             continue
 #                        img.draw_cross(b.cx(), b.cy(), color=(255, 0, 255), thickness=3)
                         img.draw_rectangle(b.rect(), color=(0,255,255))
-                        print("X:", b.cx(), " Y:", b.cy())
-                        self.x = b.cx()
-                        self.y = b.cy()
+                        # print("X:", b.cx(), " Y:", b.cy())
+                        # self.x = b.cx()
+                        # self.y = b.cy()
 #                        return self.x, self.y
                         # blob.cx() 返回色块的外框的中心x坐标（int），也可以通过blob[5]来获取。
                         # blob.cy() 返回色块的外框的中心y坐标（int），也可以通过blob[6]来获取。
+#                img.draw_cross(bright_spot[0].cx(), bright_spot[0].cy(), color=(0, 255, 0))
+#                print("X:", bright_spot[0].cx(), " Y:", bright_spot[0].cy())
+#                self.x = bright_spot[0].cx()
+#                self.y = bright_spot[0].cy()
+#                return self.x, self.y
         else: return None
 
 while True:
