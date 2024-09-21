@@ -135,9 +135,9 @@ class Movement:
 #        sensor.skip_frames(time=2000)
         #######################################正式打开
 
-        #########################################拍摄,保持打开
+        #----------------------------------------------------拍摄,保持打开
         img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)
-        #########################################拍摄
+        #----------------------------------------------------拍摄,保持打开
 
         blobs = img.find_blobs(self.colour, area_threshold=300, margin=0)# type(blob) is list
         print(blobs)
