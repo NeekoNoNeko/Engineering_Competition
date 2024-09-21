@@ -2,10 +2,9 @@
 #找色块后找亮光
 import sensor, image, time
 from machine import UART
-red_threshold = [(0, 66, 14, 127, 12, 66)]
-#(9, 35, -9, 36, -31, 28)
-blue_threshold = [(0, 60, -10, 127, -128, -10)]
-green_threshold = [(24, 70, -128, -5, -128, 15)]
+red_threshold = [(0, 51, 36, 62, 19, 50)]
+blue_threshold = [(19, 55, -8, 30, -65, -32)]
+green_threshold = [(23, 57, -35, 0, -24, 14)]
 
 
 # 下面的阈值一般跟踪红色/绿色的东西。你可以调整它们…
@@ -22,7 +21,12 @@ sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
 sensor.set_auto_gain(False) # 颜色跟踪必须关闭自动增益
-sensor.set_auto_whitebal(False)                         #关闭白平衡
+sensor.set_auto_whitebal(False)    # 白平衡
+sensor.set_auto_exposure(False)#    自动曝光
+sensor.set_contrast(3)      # 设置相机图像对比度。-3至+3。
+sensor.set_brightness(3)   # 设置相机图像亮度。-3至+3。
+sensor.set_saturation(3)   # 设置相机图像饱和度。-3至+3。
+
 sensor.skip_frames(time = 2000)
 
 clock = time.clock()
@@ -31,3 +35,8 @@ while(True):
 #    print("-----------begin----------")
     img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
     img.gaussian(2)
+    img.binary(green_threshold)
+    img.erode(1)
+    img.flood_fill(10, 10, clear_background=False)
+    img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
+#    img.dilate(1)
