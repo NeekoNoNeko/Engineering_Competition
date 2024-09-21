@@ -23,7 +23,7 @@ K = 0.5767220
 uartAddr = UART(3, 9600)
 send_flag = True
 
-#pyb.delay(5000)
+pyb.delay(5000)
 
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
@@ -324,7 +324,10 @@ class IdentifyColorCards:
 
     def find(self):
         if len(self.ColourCardList) == 1:
+            led = pyb.LED(2)
+            led.on()
             pyb.delay(5000)
+            led.off()
         sensor.skip_frames(time=3000)
         img = sensor.snapshot().lens_corr(strength=1.5, zoom=1.0)  # 消除镜头鱼眼畸变
         blobs = img.find_blobs(manyThresholds, area_threshold=3000, margin=10, merge=False)
@@ -411,6 +414,7 @@ class AnalyzeData:
             #     identify_color_cards.find()
 
             print("into do analyze")
+            led.off()
             tem_colour = identify_color_cards.code_to_colour[identify_color_cards.ColourCardList[colour_index]]
             print("tem_colour: ", tem_colour)
             movement = Movement(tem_colour)
@@ -426,6 +430,7 @@ class AnalyzeData:
             # 将识别到的色卡顺序，发送出去
             send_colour_list = identify_color_cards.ColourCardList
             print("send_colour_list:", send_colour_list)
+            led.off()
             while len(send_colour_list) < 2:
                 identify_color_cards.find()
                 # identify_color_cards.find()
@@ -458,7 +463,10 @@ analyzeData = AnalyzeData()
 identify_color_cards = IdentifyColorCards()
 is_empty = IsEmpty()
 print("go")
+
 while True:
+    led = pyb.LED(1)
+    led.on()
     if analyzeData.read_uart():
         analyzeData.do_analyze()# 只需这个
 
