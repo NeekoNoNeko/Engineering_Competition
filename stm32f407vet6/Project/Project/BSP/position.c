@@ -34,6 +34,8 @@ extern __IO float tray_x, tray_y;			//托盘位置
 
 extern __IO uint16_t Emm_speed;		//42步进电机运行速度
 extern __IO uint8_t Emm_Z_acc;		//Z轴电机加速度
+extern __IO uint8_t Emm_X_acc;		//X轴定位电机加速度
+extern __IO uint8_t Emm_Y_acc;		//Y轴定位电机加速度
 
 /*在整个定位程序中，z轴的优先级应该要是最高的，即在z轴没有到达指定位置前，x轴和y轴不能有动作*/
 __IO bool z_arriveflag = false;			//z轴到位标志位
@@ -73,7 +75,7 @@ void X_Emm_V5_position(float x, uint16_t velocity)
 		X.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, X.dir, velocity, 0, X.pulse, 0, 0, 1);		//1号电机（X轴电机）
+	Emm_V5_Pos_Control(1, X.dir, velocity, Emm_X_acc, X.pulse, 0, 0, 1);		//1号电机（X轴电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(usart1_rxFrameFlag == false);
 	usart1_rxFrameFlag = false;
@@ -125,7 +127,7 @@ void Y_Emm_V5_position(float y, uint16_t velocity)
 		Y.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, Y.dir, velocity, 0, Y.pulse, 0, 0, 2);		//2号电机（Y轴电机）
+	Emm_V5_Pos_Control(1, Y.dir, velocity, Emm_Y_acc, Y.pulse, 0, 0, 2);		//2号电机（Y轴电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(usart2_rxFrameFlag == false);
 	usart2_rxFrameFlag = false;

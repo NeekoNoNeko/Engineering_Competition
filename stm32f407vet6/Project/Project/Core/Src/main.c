@@ -72,7 +72,9 @@ uint8_t KeyNum;
 
 //int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
 __IO uint16_t Emm_speed = 1000;		//42步进电机运行速度，定位电机（即X,Y,Z轴电机）
-__IO uint8_t Emm_Z_acc = 60;		//Z轴定位电机加速度
+__IO uint8_t Emm_Z_acc = 100;		//Z轴定位电机加速度
+__IO uint8_t Emm_X_acc = 255;		//X轴定位电机加速度
+__IO uint8_t Emm_Y_acc = 255;		//Y轴定位电机加速度
 
 /*openmv*/
 __IO float openmv_x, openmv_y;			//openmv坐标数据
@@ -86,9 +88,9 @@ uint8_t send_statusdata[5] = {0xA1, 0xA2, 0, 0, 0xFE};		//发送给openmv的状态数据
 
 /*托盘上各物品位置，药板、药瓶、托盘*/
 __IO float plate_x = 24.681, plate_y = 5.872;		//药板位置，坐标信息为药板中心点位置
-__IO float bottle_x = 28.096, bottle_y = 23.652;	//药瓶位置
-__IO float cap_x = 15.365, cap_y = 24.288;			//瓶盖位置
-__IO float tray_x = 11.292, tray_y = 12.495;		//托盘位置，坐标信息为托盘中心点位置
+__IO float bottle_x = 28.672, bottle_y = 23.697;	//药瓶位置
+__IO float cap_x = 15.059, cap_y = 23.581;			//瓶盖位置
+__IO float tray_x = 11.292 + 1, tray_y = 12.495 - 3;		//托盘位置，坐标信息为托盘中心点位置
 
 float err_x = -5.8, err_y = -0.45;					//视觉模块与气泵的偏移量
 float plate_err_x = -4.0, plate_err_y = -2.0;		//药板中心与药板孔的偏移量
@@ -399,7 +401,7 @@ int main(void)
 //		delay_ms(1000);
 		delay_ms(3000);
 		Motor_SetSpeed(-100);
-		delay_ms(3000);
+		delay_ms(3200);
 		Motor_SetSpeed(0);
 	}
 	
