@@ -2,15 +2,15 @@
 #找色块后找亮光
 import sensor, image, time
 from machine import UART
-red_threshold = [(0, 51, 36, 62, 19, 50)]
-blue_threshold = [(19, 55, -8, 30, -65, -32)]
-green_threshold = [(23, 57, -35, 0, -24, 14)]
+red_threshold = [(19, 36, 1, 53, -9, 51)]
+blue_threshold = [(9, 42, -28, 27, -54, -1)]
+green_threshold = [(28, 60, -59, -16, -11, 74)]
 
 
 # 下面的阈值一般跟踪红色/绿色的东西。你可以调整它们…
-manyThresholds = [(0, 100, 20, 127, -128, 127), # generic_red_thresholds -> index is 0 so code == (1 << 0)
-                 (27, 80, -45, -15, 13, 51), # generic_green_thresholds -> index is 1 so code == (1 << 1)
-                 (41, 78, -29, 37, -76, -26)] # generic_blue_thresholds -> index is 2 so code == (1 << 2)
+manyThresholds = [(0, 100, 6, 68, 12, 65), #  Red generic_red_thresholds -> index is 0 so code == (1 << 0)
+                 (0, 100, -65, -16, 13, 56), # Green generic_green_thresholds -> index is 1 so code == (1 << 1)
+                 (0, 99, -40, -6, -53, 2) ] # Blue generic_blue_thresholds -> index is 2 so code == (1 << 2)
 # 当“find_blobs”的“merge = True”时，code代码被组合在一起。
 middle = (160, 120)
 K = 0.5767220

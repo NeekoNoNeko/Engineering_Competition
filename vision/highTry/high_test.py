@@ -4,18 +4,16 @@
 import sensor, image, time, pyb, math
 from machine import UART
 
-
-red_threshold = [(0, 51, 36, 62, 19, 50)]
-blue_threshold = [(19, 55, -8, 30, -65, -32)]
-green_threshold = [(23, 57, -35, 0, -24, 14)]
+# red:001, green:010, blue:100
+red_threshold = [(19, 36, 1, 53, -9, 51)]
+blue_threshold = [(11, 64, -14, 25, -62, -12)]
+green_threshold = [(28, 60, -59, -16, -11, 74)]
 
 
 # 下面的阈值一般跟踪红色/绿色的东西。你可以调整它们…
-# red:001, green:010, blue:100
-
-manyThresholds = [(0, 100, 24, 127, -10, 127), # generic_red_thresholds -> index is 0 so code == (1 << 0)
-                 (1, 98, -128, -15, 16, 67), # generic_green_thresholds -> index is 1 so code == (1 << 1)
-                 (0, 100, -86, 23, -82, -30)] # generic_blue_thresholds -> index is 2 so code == (1 << 2)
+manyThresholds = [(0, 100, 6, 68, 12, 65), #  Red generic_red_thresholds -> index is 0 so code == (1 << 0)
+                 (0, 100, -65, -16, 13, 56), # Green generic_green_thresholds -> index is 1 so code == (1 << 1)
+                 (0, 99, -40, -6, -53, 2) ] # Blue generic_blue_thresholds -> index is 2 so code == (1 << 2)
 # 当“find_blobs”的“merge = True”时，code代码被组合在一起。
 
 middle = (160, 120)
@@ -44,20 +42,20 @@ class IsEmpty :
     def do_analysis(self):
         print("empty_times:", self.empty_times)
         send_colour_list = identify_color_cards.ColourCardList
-        # 空就停止
-        sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 4,
+        # # 空就停止
+        # sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 4,
+        #                             0, 0, 0, 0, 0, 0xFF])
+        # # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+        # print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+        # print("1sent_uart_data:", sent_uart_data)
+
+        # if self.empty_times >= 2:
+
+        sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 3,
                                     0, 0, 0, 0, 0, 0xFF])
         # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
         print(uartAddr.write(sent_uart_data))  # 开始启动!!!
-        print("1sent_uart_data:", sent_uart_data)
-
-        if self.empty_times >= 2:
-
-            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 3,
-                                        0, 0, 0, 0, 0, 0xFF])
-            # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
-            print(uartAddr.write(sent_uart_data))  # 开始启动!!!
-            print("2sent_uart_data:", sent_uart_data)
+        print("2sent_uart_data:", sent_uart_data)
 
 class SendData:
     def __init__(self, x_position, y_position):
@@ -121,7 +119,7 @@ class SendData:
 
         # 帧头，帧头，颜色标志位，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
         print("sent data\n",data)
-        print("写入的字节数： ", uartAddr.write(data))
+        print("发送的字节数： ", uartAddr.write(data))
         print(data.hex('-'))#print打印会将16进制转成对应字符
         print("sent")
 
@@ -213,10 +211,13 @@ class Movement:
         blobs = img.find_blobs(self.colour, area_threshold=300, margin=0)# type(blob) is list
         print(blobs)
         print("blobs数量:", len(blobs))
+        if len(blobs) == 1:
+            analyzeData.position = 3
         # 寻找对应阈值的色块，阈值小于300像素的色块过滤掉，合并相邻像素在10个像素内的色块
 
         for b in blobs:
-            print(b.pixels())
+            print("画色块")
+            print("pixels: ", b.pixels())
             img.draw_rectangle(b.rect())
             img.draw_cross(b.cx(), b.cy())
 #            img.draw_line((159, 120, b[5], b[6]), color=(0, 0, 0), thickness=2)# color is black
@@ -240,7 +241,7 @@ class Movement:
                 roi = blobs[0].rect()
 
 #                img.mean(1)             #均值滤波,均值滤波是最快的滤波,size=1则是3x3的核，size=2则是5x5的核,不应该使用大于2的值。
-                img.gaussian(2)
+#                img.gaussian(2)
                 img.binary(self.colour)
 #                img.gaussian(2)
                 img.erode(1)
@@ -472,6 +473,18 @@ class AnalyzeData:
             print(uartAddr.write(sent_uart_data))# 开始启动!!!
             print("4sent_uart_data:", sent_uart_data)
 
+        elif self.mode == 2:
+            send_colour_list = identify_color_cards.ColourCardList
+#            send_colour_list[0] = identify_color_cards.colour_to_code[send_colour_list[0]]
+#            send_colour_list[1] = identify_color_cards.colour_to_code[send_colour_list[1]]
+            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 0,
+                                        self.position, 0, 0, 0, 0, 0xFF])
+            #            sent_uart_data = bytearray([0xAA, 0xBB, 1, 1, 1, 0,0,0,0,0, 0xFF])
+            # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+            print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+            print("5sent_uart_data:", sent_uart_data)
+
+
         # elif self.mode == 4:
         #     send_colour_list = identify_color_cards.ColourCardList
         #     sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], self.position,
@@ -479,7 +492,7 @@ class AnalyzeData:
         #     # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
         #     print(uartAddr.write(sent_uart_data))  # 开始启动!!!
         #     print("sent_uart_data:", sent_uart_data.hex("-"))
-        elif self.mode == 0 or self.mode == 2:
+        elif self.mode == 0 :
             pass
 
 
