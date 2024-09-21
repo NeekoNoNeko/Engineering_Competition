@@ -350,6 +350,17 @@ class AnalyzeData:
                 if self._uartData.startswith(b"\xa2", 1):
                     if self._uartData.endswith(b"\xfe"):
                         self.mode = self._uartData[2]
+                        temp_position = self._uartData[3]
+
+                        if temp_position== 2 and self.position == 1: #positon转变时发送
+                            self.position = self._uartData[3]
+                            send_colour_list = identify_color_cards.ColourCardList
+                            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], self.position,
+                                                        0, 0, 0, 0, 0, 0xFF])
+                            # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+                            print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+                            print("sent")
+                            print("sent_uart_data:", sent_uart_data.hex("-"))
                         self.position = self._uartData[3]
                         print("mode: ", self.mode)
                         print("position: ", self.position)
@@ -414,7 +425,14 @@ class AnalyzeData:
             print(uartAddr.write(sent_uart_data))# 开始启动!!!
             print("sent_uart_data:", sent_uart_data)
 
-        elif self.mode == 0 or self.mode == 2 or self.mode == 4:
+        # elif self.mode == 4:
+        #     send_colour_list = identify_color_cards.ColourCardList
+        #     sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], self.position,
+        #                                 0, 0, 0, 0, 0, 0xFF])
+        #     # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+        #     print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+        #     print("sent_uart_data:", sent_uart_data.hex("-"))
+        elif self.mode == 0 or self.mode == 2:
             pass
 
 
