@@ -81,7 +81,7 @@ __IO uint8_t openmv_colourflag_bottle;	//openmv颜色标志位，1 red; 2 green; 3 blu
 __IO uint8_t openmv_statusflag;			//openmv状态标志位，1 药板; 2 药瓶; 3 拧瓶盖
 __IO uint8_t openmv_quadrantflag;		//openmv象限标志位，1 第一象限; 2 第二象限; 3 第三象限; 4 第四象限		
 uint8_t send_statusdata[5] = {0xA1, 0xA2, 0, 0, 0xFE};		//发送给openmv的状态数据包
-		//位2：返回给openmv的状态标志位，0 默认位; 1 到位准备抓取; 2 完成抓取; 3 开始识别色卡;
+		//位2：返回给openmv的状态标志位，0 默认位; 1 到位准备抓取; 2 完成抓取; 3 开始识别色卡; #未使用#4 发送启动信号给主控单片机
 		//位3：模式位（药板、药瓶 or 瓶盖），0 默认位; 1 药板; 2 药瓶; 3 瓶盖
 
 /*托盘上各物品位置，药板、药瓶、托盘*/
@@ -254,12 +254,12 @@ int main(void)
 		times_plate++;			//抓取药丸到药板次数，即已抓取药丸到药板的个数
 		OLED_ShowNum(66, 16, times_plate, 3, OLED_6X8);
 		OLED_Update();
-		if(times_plate == 6)
+		if(times_plate == 1)
 		{
 			send_statusdata[3] = 2;		//模式转化为药瓶
 			HAL_UART_Transmit(&huart5, send_statusdata, 5, 50);
 		}
-		
+		openmv_statusflag = 0;
 	}
 	
 /*****************************************************************************************************/
@@ -327,6 +327,8 @@ int main(void)
 		times_bottle++;		//抓取药丸到药瓶次数，即已抓取药丸到药瓶的次数
 		OLED_ShowNum(90, 16, times_bottle, 3, OLED_6X8);
 		OLED_Update();
+		
+//		openmv_statusflag = 0;
 	}
 	
 /*****************************************************************************************************/
