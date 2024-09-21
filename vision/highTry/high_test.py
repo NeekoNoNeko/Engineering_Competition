@@ -35,6 +35,20 @@ sensor.set_brightness(3)   # 设置相机图像亮度。-3至+3。
 sensor.set_saturation(3)   # 设置相机图像饱和度。-3至+3。
 sensor.skip_frames(time = 2000)
 
+class IsEmpty :
+    empty_times = 0
+
+    def count(self):
+        self.empty_times += 1
+
+    def do_analysis(self):
+        if self.empty_times >= 2:
+            send_colour_list = identify_color_cards.ColourCardList
+            sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 3,
+                                        0, 0, 0, 0, 0, 0xFF])
+            # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+            print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+            print("sent_uart_data:", sent_uart_data)
 
 class SendData:
     def __init__(self, x_position, y_position):
@@ -277,7 +291,10 @@ class Movement:
 #                self.x = bright_spot[0].cx()
 #                self.y = bright_spot[0].cy()
 #                return self.x, self.y
-        else: return None
+        elif analyzeData == 2:
+            is_empty.count()
+            is_empty.do_analysis()
+            return None
 
 #         if blob:                                            #如果找到了目标颜色
 #             for b in blob:
@@ -439,6 +456,7 @@ class AnalyzeData:
 
 analyzeData = AnalyzeData()
 identify_color_cards = IdentifyColorCards()
+is_empty = IsEmpty()
 print("go")
 while True:
     if analyzeData.read_uart():
