@@ -87,10 +87,11 @@ uint8_t send_statusdata[5] = {0xA1, 0xA2, 0, 0, 0xFE};		//发送给openmv的状态数据
 		//位3：模式位（药板、药瓶 or 瓶盖），0 默认位; 1 药板; 2 药瓶; 3 瓶盖
 
 /*托盘上各物品位置，药板、药瓶、托盘*/
-__IO float plate_x = 24.681, plate_y = 5.872;		//药板位置，坐标信息为药板中心点位置
-__IO float bottle_x = 28.672, bottle_y = 23.697;	//药瓶位置
-__IO float cap_x = 15.059, cap_y = 23.581;			//瓶盖位置
+__IO float plate_x = 24.681, plate_y = 5.872;				//药板位置，坐标信息为药板中心点位置
+__IO float bottle_x = 28.672, bottle_y = 23.697;			//药瓶位置
+__IO float cap_x = 15.059, cap_y = 23.581;					//瓶盖位置
 __IO float tray_x = 11.292 + 1, tray_y = 12.495 - 3;		//托盘位置，坐标信息为托盘中心点位置
+															//-1 +3是OpenMV plus，原OpenMV不需要加减
 
 float err_x = -5.8, err_y = -0.45;					//视觉模块与气泵的偏移量
 float plate_err_x = -4.0, plate_err_y = -2.0;		//药板中心与药板孔的偏移量
