@@ -34,9 +34,9 @@ clock = time.clock()
 while(True):
 #    print("-----------begin----------")
     img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
-    img.gaussian(2)
-    img.binary(green_threshold)
-    img.erode(1)
-    img.flood_fill(10, 10, clear_background=False)
-    img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
+#    img.gaussian(2)
+#    img.binary(green_threshold)
+#    img.erode(1)
+#    img.flood_fill(10, 10, clear_background=False)
+#    img = sensor.snapshot().lens_corr(strength = 1.5, zoom = 1.0)# 消除镜头鱼眼畸变
 #    img.dilate(1)

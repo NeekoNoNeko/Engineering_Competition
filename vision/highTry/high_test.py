@@ -42,13 +42,22 @@ class IsEmpty :
         self.empty_times += 1
 
     def do_analysis(self):
+        print("empty_times:", self.empty_times)
+        send_colour_list = identify_color_cards.ColourCardList
+        # 空就停止
+        sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 4,
+                                    0, 0, 0, 0, 0, 0xFF])
+        # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+        print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+        print("1sent_uart_data:", sent_uart_data)
+
         if self.empty_times >= 2:
-            send_colour_list = identify_color_cards.ColourCardList
+
             sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 3,
                                         0, 0, 0, 0, 0, 0xFF])
             # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
             print(uartAddr.write(sent_uart_data))  # 开始启动!!!
-            print("sent_uart_data:", sent_uart_data)
+            print("2sent_uart_data:", sent_uart_data)
 
 class SendData:
     def __init__(self, x_position, y_position):
@@ -291,7 +300,7 @@ class Movement:
 #                self.x = bright_spot[0].cx()
 #                self.y = bright_spot[0].cy()
 #                return self.x, self.y
-        elif analyzeData == 2:
+        elif analyzeData.position == 2:
             is_empty.count()
             is_empty.do_analysis()
             return None
@@ -323,6 +332,7 @@ class IdentifyColorCards:
                 return maxb_index
 
     def find(self):
+        print("----------------------identify color cards.find start---------------------------")
         if len(self.ColourCardList) == 1:
             pyb.delay(5000)
         sensor.skip_frames(time=3000)
@@ -342,6 +352,7 @@ class IdentifyColorCards:
             elif len(self.ColourCardList) == 1:
                 self.ColourCardList.append(self.code_to_colour[b.code()])
         print(self.ColourCardList)
+        print("===============================identify color cards.find() end================================")
 
 
 
@@ -377,7 +388,7 @@ class AnalyzeData:
                             # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
                             print(uartAddr.write(sent_uart_data))  # 开始启动!!!
                             print("sent")
-                            print("sent_uart_data:", sent_uart_data.hex("-"))
+                            print("3sent_uart_data:", sent_uart_data.hex("-"))
                         self.position = self._uartData[3]
                         print("mode: ", self.mode)
                         print("position: ", self.position)
@@ -390,6 +401,8 @@ class AnalyzeData:
             else:
                 self._uartData = None
                 print("no!!!")
+
+            print("=============end_read_uart========")
             return True
         self._uartData = None
         return False
@@ -413,19 +426,36 @@ class AnalyzeData:
             print("into do analyze")
             tem_colour = identify_color_cards.code_to_colour[identify_color_cards.ColourCardList[colour_index]]
             print("tem_colour: ", tem_colour)
+            ########################################################正式
             movement = Movement(tem_colour)
             # movement = Movement("red")
-            val = movement.catch()
+            ########################################################测试
+
+            val = movement.catch() # 返回值是坐标
 
             print("val:", val)
-            if val:
-                send = SendData(val[0], val[1])
-                send.uart_send()
-                print("done\n\n\n")
+            for i in range(2):
+                if val:
+                    send = SendData(val[0], val[1])
+                    send.uart_send()
+                    print("done\n\n\n")
+                    break
+                else:
+                    val = movement.catch()
+                    print("val:", val)
+                    send_colour_list = identify_color_cards.ColourCardList
+
+                    # # 空就停止
+                    # sent_uart_data = bytearray([0xAA, 0xBB, send_colour_list[0], send_colour_list[1], 4,
+                    #                             0, 0, 0, 0, 0, 0xFF])
+                    # # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
+                    # print(uartAddr.write(sent_uart_data))  # 开始启动!!!
+                    # print("sent_uart_data:", sent_uart_data)
+
         elif self.mode == 3:
             # 将识别到的色卡顺序，发送出去
             send_colour_list = identify_color_cards.ColourCardList
-            print("send_colour_list:", send_colour_list)
+            print("send_c·olour_list:", send_colour_list)
             while len(send_colour_list) < 2:
                 identify_color_cards.find()
                 # identify_color_cards.find()
@@ -440,7 +470,7 @@ class AnalyzeData:
 #            sent_uart_data = bytearray([0xAA, 0xBB, 1, 1, 1, 0,0,0,0,0, 0xFF])
                         # 帧头，帧头，颜色标志位1，颜色标志位2，状态标志位(position)，符号象限位，X坐标前，后，Y坐标前，后，帧尾
             print(uartAddr.write(sent_uart_data))# 开始启动!!!
-            print("sent_uart_data:", sent_uart_data)
+            print("4sent_uart_data:", sent_uart_data)
 
         # elif self.mode == 4:
         #     send_colour_list = identify_color_cards.ColourCardList
