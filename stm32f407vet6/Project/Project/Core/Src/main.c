@@ -70,23 +70,28 @@ void OLED_Showcolor(uint8_t colorflag1, uint8_t colorflag2);
 
 uint8_t KeyNum;
 
-int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
+//int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
+__IO uint16_t Emm_speed = 1000;		//42步进电机运行速度，定位电机（即X,Y,Z轴电机）
+__IO uint8_t Emm_Z_acc = 100;		//Z轴定位电机加速度
+__IO uint8_t Emm_X_acc = 255;		//X轴定位电机加速度
+__IO uint8_t Emm_Y_acc = 255;		//Y轴定位电机加速度
 
 /*openmv*/
 __IO float openmv_x, openmv_y;			//openmv坐标数据
 __IO uint8_t openmv_colourflag_plate;	//openmv颜色标志位，1 red; 2 green; 3 blue，显示在oled上
 __IO uint8_t openmv_colourflag_bottle;	//openmv颜色标志位，1 red; 2 green; 3 blue，显示在oled上
-__IO uint8_t openmv_statusflag;			//openmv状态标志位，1 药板; 2 药瓶; 3 拧瓶盖
+__IO uint8_t openmv_statusflag;			//openmv状态标志位，1 药板; 2 药瓶; 3 拧瓶盖; #未使用#4 不行动，只能由中断打断
 __IO uint8_t openmv_quadrantflag;		//openmv象限标志位，1 第一象限; 2 第二象限; 3 第三象限; 4 第四象限		
 uint8_t send_statusdata[5] = {0xA1, 0xA2, 0, 0, 0xFE};		//发送给openmv的状态数据包
-		//位2：返回给openmv的状态标志位，0 默认位; 1 到位准备抓取; 2 完成抓取; 3 开始识别色卡;
+		//位2：返回给openmv的状态标志位，0 默认位; 1 到位准备抓取; 2 完成抓取; 3 开始识别色卡; #未使用#4 发送启动信号给主控单片机
 		//位3：模式位（药板、药瓶 or 瓶盖），0 默认位; 1 药板; 2 药瓶; 3 瓶盖
 
 /*托盘上各物品位置，药板、药瓶、托盘*/
-__IO float plate_x = 24.681, plate_y = 5.872;		//药板位置，坐标信息为药板中心点位置
-__IO float bottle_x = 28.096, bottle_y = 23.652;	//药瓶位置
-__IO float cap_x = 15.365, cap_y = 24.288;			//瓶盖位置
-__IO float tray_x = 11.292, tray_y = 12.495;		//托盘位置，坐标信息为托盘中心点位置
+__IO float plate_x = 24.681, plate_y = 5.872;				//药板位置，坐标信息为药板中心点位置
+__IO float bottle_x = 28.672, bottle_y = 23.697;			//药瓶位置
+__IO float cap_x = 15.059, cap_y = 23.581;					//瓶盖位置
+__IO float tray_x = 11.292 + 1, tray_y = 12.495 - 3;		//托盘位置，坐标信息为托盘中心点位置
+															//-1 +3是OpenMV plus，原OpenMV不需要加减
 
 float err_x = -5.8, err_y = -0.45;					//视觉模块与气泵的偏移量
 float plate_err_x = -4.0, plate_err_y = -2.0;		//药板中心与药板孔的偏移量
@@ -193,11 +198,11 @@ int main(void)
 		
 		/*开始定位药丸*/
 		delay_ms(1000);
-		X_Emm_V5_position(tray_x + openmv_x + err_x, 500);
-		Y_Emm_V5_position(tray_y + openmv_y + err_y, 500);
+		X_Emm_V5_position(tray_x + openmv_x + err_x, Emm_speed);
+		Y_Emm_V5_position(tray_y + openmv_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 
-		Z_Emm_V5_position(1.55, 500);
+		Z_Emm_V5_position(1.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -205,15 +210,15 @@ int main(void)
 		valve_control(0);
 		
 		delay_ms(1000);		//预留气泵吸球稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药板位置*/
-		X_Emm_V5_position(plate_x + plate_err_x + err_x, 500);
-		Y_Emm_V5_position(plate_y + plate_err_y + err_y, 500);
+		X_Emm_V5_position(plate_x + plate_err_x + err_x, Emm_speed);
+		Y_Emm_V5_position(plate_y + plate_err_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(2.4, 500);
+		Z_Emm_V5_position(2.4, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -252,12 +257,14 @@ int main(void)
 		times_plate++;			//抓取药丸到药板次数，即已抓取药丸到药板的个数
 		OLED_ShowNum(66, 16, times_plate, 3, OLED_6X8);
 		OLED_Update();
+		
 		if(times_plate == 6)
 		{
 			send_statusdata[3] = 2;		//模式转化为药瓶
 			HAL_UART_Transmit(&huart5, send_statusdata, 5, 50);
 		}
 		
+//		openmv_statusflag = 0;		//清零操作
 	}
 	
 /*****************************************************************************************************/
@@ -292,11 +299,11 @@ int main(void)
 		HAL_UART_Transmit(&huart5, send_statusdata, 5, 50);
 		
 		/*开始定位药丸*/
-		X_Emm_V5_position(tray_x + openmv_x + err_x, 500);
-		Y_Emm_V5_position(tray_y + openmv_y + err_y, 500);
+		X_Emm_V5_position(tray_x + openmv_x + err_x, Emm_speed);
+		Y_Emm_V5_position(tray_y + openmv_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 
-		Z_Emm_V5_position(1.55, 500);
+		Z_Emm_V5_position(1.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -304,15 +311,15 @@ int main(void)
 		valve_control(0);
 		
 		delay_ms(1000);		//预留气泵吸球稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药瓶位置*/
-		X_Emm_V5_position(bottle_x + err_x, 500);
-		Y_Emm_V5_position(bottle_y + err_y, 500);
+		X_Emm_V5_position(bottle_x + err_x, Emm_speed);
+		Y_Emm_V5_position(bottle_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(7.55, 500);
+		Z_Emm_V5_position(7.55, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -325,6 +332,13 @@ int main(void)
 		times_bottle++;		//抓取药丸到药瓶次数，即已抓取药丸到药瓶的次数
 		OLED_ShowNum(90, 16, times_bottle, 3, OLED_6X8);
 		OLED_Update();
+		
+		if(times_bottle == 6)
+		{
+			KeyNum = 3;
+		}
+		
+//		openmv_statusflag = 0;
 	}
 	
 /*****************************************************************************************************/
@@ -335,15 +349,15 @@ int main(void)
 		OLED_Update();
 		
 		/*******************************************************************************/
-		Z_Emm_V5_position(12, 300);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位瓶盖位置*/
-		X_Emm_V5_position(cap_x + err_x, 500);
-		Y_Emm_V5_position(cap_y + err_y, 500);
+		X_Emm_V5_position(cap_x + err_x, Emm_speed);
+		Y_Emm_V5_position(cap_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(1.3, 500);
+		Z_Emm_V5_position(1.3, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -352,15 +366,15 @@ int main(void)
 		
 		/*******************************************************************************/
 		delay_ms(1000);		//预留气泵吸瓶盖稳定时间
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*定位药瓶位置*/
-		X_Emm_V5_position(bottle_x + err_x, 500);
-		Y_Emm_V5_position(bottle_y + err_y, 500);
+		X_Emm_V5_position(bottle_x + err_x, Emm_speed);
+		Y_Emm_V5_position(bottle_y + err_y, Emm_speed);
 		while(x_arrive_check() == false || y_arrive_check() == false);
 		
-		Z_Emm_V5_position(9, 500);
+		Z_Emm_V5_position(9, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		/*******************************************************************************/
@@ -368,9 +382,9 @@ int main(void)
 		valve_control(1);
 		
 		delay_ms(1000);
-		Clamp_Emm_V5_position(10.35, 100);
+		Clamp_Emm_V5_position(10.35, 100, 30);		//位置，速度，加速度
 		
-		Z_Emm_V5_position(12, 500);
+		Z_Emm_V5_position(12, Emm_speed);
 		while(z_arrive_check() == false);
 		
 		valve_control(0);	//电磁阀不能长时间打开，否则可能会发热严重
@@ -388,12 +402,12 @@ int main(void)
 //		delay_ms(1000);
 		delay_ms(3000);
 		Motor_SetSpeed(-100);
-		delay_ms(5000);
+		delay_ms(3200);
 		Motor_SetSpeed(0);
 	}
 	
 /*****************************************************************************************************/
-	if(KeyNum == 4 || openmv_statusflag == 4)
+	if(KeyNum == 4)
 	{
 		OLED_ShowString(0, 16, "card  :", OLED_6X8);
 		OLED_ShowNum(42, 16, KeyNum, 2, OLED_6X8);

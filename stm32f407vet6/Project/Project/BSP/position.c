@@ -32,14 +32,23 @@ __IO uint8_t j = 0;
 extern __IO float plate_x, plate_y;			//药板位置
 extern __IO float tray_x, tray_y;			//托盘位置
 
+extern __IO uint16_t Emm_speed;		//42步进电机运行速度
+extern __IO uint8_t Emm_Z_acc;		//Z轴电机加速度
+extern __IO uint8_t Emm_X_acc;		//X轴定位电机加速度
+extern __IO uint8_t Emm_Y_acc;		//Y轴定位电机加速度
+
 /*在整个定位程序中，z轴的优先级应该要是最高的，即在z轴没有到达指定位置前，x轴和y轴不能有动作*/
 __IO bool z_arriveflag = false;			//z轴到位标志位
 __IO bool x_arriveflag = false;			//x轴到位标志位
 __IO bool y_arriveflag = false;			//y轴到位标志位
 
+
+/*****************************************************************************************************/
+
 /**
   * @brief  X轴定位
   * @param  x，X轴定位坐标，范围 0~49，单位cm
+  * @param	velocity，电机速度
   * @retval 无
   */
 void X_Emm_V5_position(float x, uint16_t velocity)
@@ -66,7 +75,7 @@ void X_Emm_V5_position(float x, uint16_t velocity)
 		X.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, X.dir, velocity, 0, X.pulse, 0, 0, 1);		//1号电机（X轴电机）
+	Emm_V5_Pos_Control(1, X.dir, velocity, Emm_X_acc, X.pulse, 0, 0, 1);		//1号电机（X轴电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(usart1_rxFrameFlag == false);
 	usart1_rxFrameFlag = false;
@@ -91,6 +100,7 @@ void X_Emm_V5_position(float x, uint16_t velocity)
 /**
   * @brief  Y轴定位
   * @param  y，Y轴定位坐标，范围 0~26，单位cm
+  * @param	velocity，电机速度
   * @retval 无
   */
 void Y_Emm_V5_position(float y, uint16_t velocity)
@@ -117,7 +127,7 @@ void Y_Emm_V5_position(float y, uint16_t velocity)
 		Y.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, Y.dir, velocity, 0, Y.pulse, 0, 0, 2);		//2号电机（Y轴电机）
+	Emm_V5_Pos_Control(1, Y.dir, velocity, Emm_Y_acc, Y.pulse, 0, 0, 2);		//2号电机（Y轴电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(usart2_rxFrameFlag == false);
 	usart2_rxFrameFlag = false;
@@ -142,6 +152,7 @@ void Y_Emm_V5_position(float y, uint16_t velocity)
 /**
   * @brief  Z轴定位
   * @param  z，Z轴定位坐标，范围 0~18，单位cm
+  * @param	velocity，电机速度
   * @retval 无
   */
 void Z_Emm_V5_position(float z, uint16_t velocity)
@@ -168,7 +179,7 @@ void Z_Emm_V5_position(float z, uint16_t velocity)
 		Z.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, Z.dir, velocity, 30, Z.pulse, 0, 0, 4);		//4号电机（Z轴电机）
+	Emm_V5_Pos_Control(1, Z.dir, velocity, Emm_Z_acc, Z.pulse, 0, 0, 4);		//4号电机（Z轴电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(uart4_rxFrameFlag == false);
 	uart4_rxFrameFlag = false;
@@ -193,9 +204,11 @@ void Z_Emm_V5_position(float z, uint16_t velocity)
 /**
   * @brief  药瓶推挤夹持电机距离函数
   * @param  clamp，加持移动距离，范围 0~10.3，单位cm
+  * @param	velocity，电机速度
+  * @param	accelerated_speed，电机加速度
   * @retval 无
   */
-void Clamp_Emm_V5_position(float clamp, uint16_t velocity)
+void Clamp_Emm_V5_position(float clamp, uint16_t velocity, uint8_t accelerated_speed)
 {
 	Clamp.pulse = round((double)(clamp + Offset_Clamp) / Step * Step_Pulse);
 	Clamp.last_pulse = round((double)(Clamp.last_coord + Offset_Clamp) / Step * Step_Pulse);
@@ -217,7 +230,7 @@ void Clamp_Emm_V5_position(float clamp, uint16_t velocity)
 		Clamp.pulse = 0;
 	}
 	
-	Emm_V5_Pos_Control(1, Clamp.dir, velocity, 30, Clamp.pulse, 0, 0, 3);		//3号电机（药瓶推挤夹持电机）
+	Emm_V5_Pos_Control(1, Clamp.dir, velocity, accelerated_speed, Clamp.pulse, 0, 0, 3);		//3号电机（药瓶推挤夹持电机）
 	/*等待返回命令，命令数据缓存在数组rxCmd上，长度为rxCount*/
 	while(usart3_rxFrameFlag == false);
 	usart3_rxFrameFlag = false;
@@ -225,6 +238,8 @@ void Clamp_Emm_V5_position(float clamp, uint16_t velocity)
 	Clamp.last_coord = clamp;
 }
 
+
+/*****************************************************************************************************/
 
 /**
   * @brief  XYZ轴回零函数
@@ -264,6 +279,9 @@ void XYZ_Return_Origin(uint8_t Mode)
 	while(uart4_rxFrameFlag == false);
 	uart4_rxFrameFlag = false;
 }
+
+
+/*****************************************************************************************************/
 
 /**
   * @brief  药盘孔位置定位与移动
@@ -306,13 +324,16 @@ void Plate_HolePitch_position(void)
   */
 void Tray_position(void)
 {
-	Z_Emm_V5_position(12, 150);
+	Z_Emm_V5_position(12, Emm_speed);
 	while(z_arrive_check() == false);
 	
-	X_Emm_V5_position(tray_x, 150);
-	Y_Emm_V5_position(tray_y, 150);
+	X_Emm_V5_position(tray_x, Emm_speed);
+	Y_Emm_V5_position(tray_y, Emm_speed);
 	while(x_arrive_check() == false || y_arrive_check() == false);
 }
+
+
+/*****************************************************************************************************/
 
 /**
   * @brief  z轴到位检测
