@@ -71,14 +71,14 @@ void OLED_Showcolor(uint8_t colorflag1, uint8_t colorflag2);
 uint8_t KeyNum;
 
 //int8_t Speed;		//拧瓶盖电机速度，可设置正反转，范围 -100~100
-__IO uint16_t Emm_speed = 500;		//42步进电机运行速度，定位电机（即X,Y,Z轴电机）
-__IO uint8_t Emm_Z_acc = 30;		//Z轴定位电机加速度
+__IO uint16_t Emm_speed = 1000;		//42步进电机运行速度，定位电机（即X,Y,Z轴电机）
+__IO uint8_t Emm_Z_acc = 60;		//Z轴定位电机加速度
 
 /*openmv*/
 __IO float openmv_x, openmv_y;			//openmv坐标数据
 __IO uint8_t openmv_colourflag_plate;	//openmv颜色标志位，1 red; 2 green; 3 blue，显示在oled上
 __IO uint8_t openmv_colourflag_bottle;	//openmv颜色标志位，1 red; 2 green; 3 blue，显示在oled上
-__IO uint8_t openmv_statusflag;			//openmv状态标志位，1 药板; 2 药瓶; 3 拧瓶盖
+__IO uint8_t openmv_statusflag;			//openmv状态标志位，1 药板; 2 药瓶; 3 拧瓶盖; #未使用#4 不行动，只能由中断打断
 __IO uint8_t openmv_quadrantflag;		//openmv象限标志位，1 第一象限; 2 第二象限; 3 第三象限; 4 第四象限		
 uint8_t send_statusdata[5] = {0xA1, 0xA2, 0, 0, 0xFE};		//发送给openmv的状态数据包
 		//位2：返回给openmv的状态标志位，0 默认位; 1 到位准备抓取; 2 完成抓取; 3 开始识别色卡; #未使用#4 发送启动信号给主控单片机
@@ -254,12 +254,14 @@ int main(void)
 		times_plate++;			//抓取药丸到药板次数，即已抓取药丸到药板的个数
 		OLED_ShowNum(66, 16, times_plate, 3, OLED_6X8);
 		OLED_Update();
-		if(times_plate == 1)
+		
+		if(times_plate == 6)
 		{
 			send_statusdata[3] = 2;		//模式转化为药瓶
 			HAL_UART_Transmit(&huart5, send_statusdata, 5, 50);
 		}
-		openmv_statusflag = 0;
+		
+//		openmv_statusflag = 0;		//清零操作
 	}
 	
 /*****************************************************************************************************/
@@ -328,6 +330,11 @@ int main(void)
 		OLED_ShowNum(90, 16, times_bottle, 3, OLED_6X8);
 		OLED_Update();
 		
+		if(times_bottle == 6)
+		{
+			KeyNum = 3;
+		}
+		
 //		openmv_statusflag = 0;
 	}
 	
@@ -392,12 +399,12 @@ int main(void)
 //		delay_ms(1000);
 		delay_ms(3000);
 		Motor_SetSpeed(-100);
-		delay_ms(5000);
+		delay_ms(3000);
 		Motor_SetSpeed(0);
 	}
 	
 /*****************************************************************************************************/
-	if(KeyNum == 4 || openmv_statusflag == 4)
+	if(KeyNum == 4)
 	{
 		OLED_ShowString(0, 16, "card  :", OLED_6X8);
 		OLED_ShowNum(42, 16, KeyNum, 2, OLED_6X8);
