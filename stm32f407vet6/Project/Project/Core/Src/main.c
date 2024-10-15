@@ -34,6 +34,7 @@
 #include "position.h"
 #include "OLED.h"
 #include "pump.h"
+#include "Servo.h"
 
 /* USER CODE END Includes */
 
@@ -109,6 +110,7 @@ int main(void)
 //	__IO uint8_t j = 0;
 	__IO uint8_t times_plate = 0;
 	__IO uint8_t times_bottle = 0;
+	__IO uint8_t angle = 0;
 
   /* USER CODE END 1 */
 
@@ -141,11 +143,12 @@ int main(void)
   
   OLED_Init();
   delay_init(168);
+  Servo_SetAngle(0, 3);
   
   /*延时等待3s初始化完成*/
-  delay_ms(3000);
+//  delay_ms(3000);
   
-  XYZ_Return_Origin(2);		//初始化回零
+//  XYZ_Return_Origin(2);		//初始化回零
 
   /* USER CODE END 2 */
 
@@ -425,6 +428,7 @@ int main(void)
 		send_statusdata[2] = 0;
 		
 		OLED_Showcolor(openmv_colourflag_plate, openmv_colourflag_bottle);		//显抓取药丸颜色
+		
 	}
   }
   /* USER CODE END 3 */
