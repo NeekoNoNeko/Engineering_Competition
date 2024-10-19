@@ -5,15 +5,15 @@ import sensor, image, time, pyb, math
 from machine import UART
 
 
-red_threshold = [(10, 50, 10, 54, 4, 52)]
+red_threshold = [(30, 77, 3, 28, -13, 34)]
 (10, 50, 10, 54, 4, 52)
 (16, 81, 15, 61, 0, 61)
 (22, 44, 33, 66, 9, 52)
-blue_threshold = [(17, 58, -20, 30, -66, -7)]
+blue_threshold = [(26, 64, -9, 22, -58, -41)]
 
 
 
-green_threshold = [(38, 77, -59, -15, -5, 36)]
+green_threshold = [(24, 67, -43, -10, -23, 11)]
 (20, 76, -48, -10, -22, 30)
 
 
