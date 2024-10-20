@@ -2,11 +2,11 @@ from maix import camera, display, image, nn, app
 
 
 class NNDetector:
-    def __init__(self, _detector, _cam, _dis):
+    def __init__(self, _detector, _cam):
         # 初始化设备用到的参数
-        self.detector = detector
+        self.detector = _detector
         self.cam = _cam
-        # self.dis = dis
+        # self.dis = _dis
 
     #     self.card_colour_list = [] # 0:red 1:blue 2:green
     #     self.is_it_card_colour_by_hand = True # True or False
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     cam = camera.Camera(detector.input_width(), detector.input_height(), detector.input_format())
     dis = display.Display()
 
-    nnDetector = NNDetector(_detector=detector, _cam=cam, _dis=dis)
+    nnDetector = NNDetector(_detector=detector, _cam=cam)
     while not app.need_exit():
         _, img = nnDetector.detect(colour_number=0) # 测试时修改 0:red 1:blue 2:green
         dis.show(img)
