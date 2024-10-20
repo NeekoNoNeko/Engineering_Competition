@@ -8,20 +8,6 @@ class NNDetector:
         self.cam = _cam
         # self.dis = _dis
 
-    #     self.card_colour_list = [] # 0:red 1:blue 2:green
-    #     self.is_it_card_colour_by_hand = True # True or False
-    #
-    #     if self.is_it_card_colour_by_hand:
-    #         self.yes_card_colour_is_by_hand()
-    #     else:
-    #         self.no_card_colour_is_not_by_hand()
-    #
-    # def yes_card_colour_is_by_hand(self):
-    #     self.card_colour_list = [0, 1]
-    #
-    # def no_card_colour_is_not_by_hand(self):
-    #     pass # a function to do analyse
-
     # 进行检测函数
     def detect(self, colour_number):
         position_list = [] # 存放 所有 目标 小球中心位置的列表
