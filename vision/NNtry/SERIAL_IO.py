@@ -3,15 +3,21 @@ from struct import pack, unpack
 
 
 class SerialIO:
-    def __init__(self, _sign_position_list, _coordinate_list):
+    def __init__(self):
         self.device = "/dev/ttyS0" # ports = uart.list_devices() # 列出当前可用的串口
         self.serial = uart.UART(self.device, 9600)
 
-        self.sign_position_list = _sign_position_list
-        self.coordinate_list = _coordinate_list
+        self.sign_position_list = None
+        self.coordinate_list = None
 
         self.state = None
         self.mode = None
+
+    def set_sign_position_list(self, _sign_position_list):
+        self.sign_position_list = _sign_position_list
+
+    def set_coordinate_list(self, _coordinate_list):
+        self.coordinate_list = _coordinate_list
 
     def send(self):
         """
@@ -25,8 +31,10 @@ class SerialIO:
                                     self.coordinate_list[0], self.coordinate_list[1], self.coordinate_list[2],
                                     self.coordinate_list[3], self.coordinate_list[4])
         bytes_content += b'\xFF'
-        print(bytes_content.hex("-"))
+        print("send: ", bytes_content.hex("-"))
         self.serial.write(bytes_content)
+        self.sign_position_list = None
+        self.coordinate_list = None
 
     def receive(self):
         """
@@ -39,7 +47,7 @@ class SerialIO:
 
         data = self.serial.read()
         if data:
-            print("\ndata: ", data) # b'\xa1\xa2\x03\x01\xfe'
+            print("\nreceive: ", data) # b'\xa1\xa2\x03\x01\xfe'
             
             unpackaged_data = unpack("<ccBBc", data) # type = tuple
             if unpackaged_data[0] == b"\xa1":
@@ -67,7 +75,9 @@ if __name__ == "__main__":
     sign_position_list = [1, 1 ,1]
     coordinate_list = [0, 0, 0, 0, 0]
 
-    ser = SerialIO(_sign_position_list=sign_position_list, _coordinate_list=coordinate_list)
+    ser = SerialIO()
+    ser.set_sign_position_list(sign_position_list)
+    ser.set_coordinate_list(coordinate_list)
     ser.send()
 
     while True:
