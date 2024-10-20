@@ -7,7 +7,7 @@ class IdentifyColorCards:
             print("Yes! Card colour is by hand! You need to call 'IdentifyColorCards.set_card_colour_list()'function.")
         else:
             print("No! Card colour is not by hand!")
-            self.__no_card_colour_is_not_by_hand__()
+
 
     def set_card_colour_list(self, _card_colour_list):
         self.card_colour_list = _card_colour_list
@@ -24,11 +24,19 @@ class IdentifyColorCards:
         print("second card colour:", self.card_colour_list[1])
         return self.card_colour_list[1]
 
+    def to_do_identify(self):
+        if self.is_it_card_colour_by_hand:
+            pass
+        else:
+            self.__no_card_colour_is_not_by_hand__()
+            print("doing identify...")
 
 
 if __name__ == '__main__':
     identify_color_cards = IdentifyColorCards(_is_it_card_colour_by_hand=True)
     identify_color_cards.set_card_colour_list([0, 1]) # 测试时修改 0:red 1:blue 2:green
+
+    identify_color_cards.to_do_identify()
 
     identify_color_cards.get_first_card_colour()
     identify_color_cards.get_second_card_colour()

@@ -75,12 +75,12 @@ if __name__ == "__main__":
     sign_position_list = [1, 1 ,1]
     coordinate_list = [0, 0, 0, 0, 0]
 
-    ser = SerialIO()
-    ser.set_sign_position_list(sign_position_list)
-    ser.set_coordinate_list(coordinate_list)
-    ser.send()
+    serial = SerialIO()
+    serial.set_sign_position_list(sign_position_list)
+    serial.set_coordinate_list(coordinate_list)
+    serial.send()
 
     while True:
-        if ser.receive():
-            state = ser.get_state()
-            mode = ser.get_mode()
+        if serial.receive():
+            state = serial.get_state()
+            mode = serial.get_mode()
