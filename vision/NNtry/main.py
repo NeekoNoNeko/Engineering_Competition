@@ -45,7 +45,7 @@ class Execute:
     def set_img(self, _img):
         self.img = _img
 
-    def is_it_duplicate_counting(self, _position):
+    def __is_it_duplicate_counting__(self, _position):
         if self.duplicate_counting_list:  # 重复计数列表
             for duplicate_position in self.duplicate_counting_list:
                 if math.dist(_position, duplicate_position) < self.detection_distance:
@@ -61,8 +61,11 @@ class Execute:
         self.position_list, self.img = nnDetector.detect(colour_number=_colour_number, _img=self.img)
         # 判断是否重复
         for position in self.position_list:
-            if not self.is_it_duplicate_counting(position):
+            if not self.__is_it_duplicate_counting__(position):
+                print("self.sign_position_list", self.sign_position_list)
+                serial.set_sign_position_list(self.sign_position_list)
                 serial.send(position)
+                break
             else:
                 continue
 
@@ -71,7 +74,7 @@ class Execute:
             flag = True
         else:
             for position in self.position_list:
-                if not self.is_it_duplicate_counting(position):
+                if not self.__is_it_duplicate_counting__(position):
                     flag = False
                     break
             flag = True
@@ -153,9 +156,12 @@ class Execute:
 
 
 execute = Execute(_detection_distance=detection_distance)
+print("\n===begin===")
 while not app.need_exit():
     img = cam.read()
+    execute.set_img(img)
+    dis.show(img)
     if serial.receive():
-        execute.state(serial.get_state())
+        execute.set_state(serial.get_state())
         execute.set_mode(serial.get_mode())
         execute.perform_analysis()

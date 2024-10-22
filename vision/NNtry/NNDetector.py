@@ -12,7 +12,8 @@ class NNDetector:
         _position_list = [] # 存放 所有 目标 小球中心位置的列表
         target_obj_list = [] # 存放 所有 目标 小球的object的列表
         # _img = self.cam.read() # 读取图像
-        objs = self.detector.detect(_img, conf_th=0.5, iou_th=0.45) # 进行检测获得 所有 小球的object (type:list)
+
+        objs = self.detector.detect(img=_img, conf_th=0.5, iou_th=0.45) # 进行检测获得 所有 小球的object (type:list)
 
         # 读取所有小球的object, 提取出target_obj_list
         for obj in objs:
