@@ -29,7 +29,8 @@ class Execute:
         self.mode = None
         self.img = None
         self.duplicate_counting_list = []
-        self.sign_position_list = None
+        self.sign_position_list = None # 标志位置列表
+        self.position_list = None
             # [identify_color_cards.get_first_card_colour(),
             #                        identify_color_cards.get_second_card_colour(), 1]
 
@@ -57,13 +58,28 @@ class Execute:
         pass
 
     def __identify_the_pills__(self, _colour_number):
-        position_list, self.img = nnDetector.detect(colour_number=_colour_number, _img=self.img)
+        self.position_list, self.img = nnDetector.detect(colour_number=_colour_number, _img=self.img)
         # 判断是否重复
-        for position in position_list:
+        for position in self.position_list:
             if not self.is_it_duplicate_counting(position):
                 serial.send(position)
             else:
                 continue
+
+    def __is_it_the_finals__(self):
+        if len(self.position_list) == 0:
+            flag = True
+        else:
+            for position in self.position_list:
+                if not self.is_it_duplicate_counting(position):
+                    flag = False
+                    break
+            flag = True
+
+        if flag:
+            self.sign_position_list = [identify_color_cards.get_first_card_colour(),
+                                       identify_color_cards.get_second_card_colour(), 3]
+            serial.set_sign_position_list(self.sign_position_list)
 
     def perform_analysis(self):
         """
@@ -122,9 +138,7 @@ class Execute:
             """
             主控控制电机定位到托盘上方位置, 开始识别药丸(停留时间5s左右)
             """
-            # _is_it_the_finals
-            self.sign_position_list = [identify_color_cards.get_first_card_colour(),identify_color_cards.get_second_card_colour(), 3]
-            serial.set_sign_position_list(self.sign_position_list)
+            self.__is_it_the_finals__()
             self.__identify_the_pills__(identify_color_cards.get_second_card_colour())
 
         elif self.state == 2 and self.mode == 2:
