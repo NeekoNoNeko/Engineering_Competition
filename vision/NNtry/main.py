@@ -17,6 +17,7 @@ identify_color_cards.set_card_colour_list([0, 1]) # 测试时修改 0:red 1:blue
 detection_distance = 5
 model_path = "/root/models/maixhub/147350/model_147350.mud"
 """=================================================================================================================="""
+all_object_list = []
 detector = nn.YOLOv5(model=model_path, dual_buff = True)
 nnDetector = NNDetector(_detector=detector)
 cam = camera.Camera(detector.input_width(), detector.input_height(), detector.input_format())
@@ -58,7 +59,8 @@ class Execute:
         pass
 
     def __identify_the_pills__(self, _colour_number):
-        self.position_list, self.img = nnDetector.detect(colour_number=_colour_number, _img=self.img)
+        # self.position_list, self.img = nnDetector.detect(colour_number=_colour_number, _img=self.img)
+        self.position_list = nnDetector.get_position(obj_list=all_object_list, colour_number=_colour_number)
         # 判断是否重复
         for position in self.position_list:
             if not self.__is_it_duplicate_counting__(position):
@@ -70,14 +72,12 @@ class Execute:
                 continue
 
     def __is_it_the_finals__(self):
-        if len(self.position_list) == 0:
-            flag = True
-        else:
+        flag = True
+        if len(self.position_list) != 0:
             for position in self.position_list:
                 if not self.__is_it_duplicate_counting__(position):
                     flag = False
                     break
-            flag = True
 
         if flag:
             self.sign_position_list = [identify_color_cards.get_first_card_colour(),
@@ -159,7 +159,8 @@ execute = Execute(_detection_distance=detection_distance)
 print("\n===begin===")
 while not app.need_exit():
     img = cam.read()
-    execute.set_img(img)
+    all_object_list, img = nnDetector.detect(_img=img)
+    # execute.set_img(img)
     dis.show(img)
     if serial.receive():
         execute.set_state(serial.get_state())
