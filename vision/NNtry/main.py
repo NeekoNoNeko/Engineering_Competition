@@ -15,7 +15,7 @@ identify_color_cards = IdentifyColorCards(_is_it_card_colour_by_hand=True)
 """=================================================================================================================="""
 identify_color_cards.set_card_colour_list([0, 1])           # 色卡顺序 测试时修改 0:red 1:blue 2:green
 detection_distance = 5                                      # 距离数值, 用来检测是否重复小球
-strength = 1.7                                              # 消除镜头畸变, 调整strength的值直到画面不再畸变
+strength = 1.5                                              # 消除镜头畸变, 调整strength的值直到画面不再畸变
 model_path = "/root/models/maixhub/147350/model_147350.mud" # 模型位置
 serial.set_k_value(2.9083)
 serial.set_middle((224, 224))
@@ -162,12 +162,12 @@ class Execute:
 
 execute = Execute(_detection_distance=detection_distance)
 print("\n===begin===")
-while not app.need_exit():
+while True:
     img = cam.read().lens_corr(strength=strength)
     all_object_list, img = nnDetector.detect(_img=img)
     # execute.set_img(img)
-    dis.show(img)
     if serial.receive():
         execute.set_state(serial.get_state())
         execute.set_mode(serial.get_mode())
         execute.perform_analysis()
+    dis.show(img)
