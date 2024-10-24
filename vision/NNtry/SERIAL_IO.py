@@ -14,6 +14,7 @@ class SerialIO:
 
         self.state = None
         self.mode = None
+        self.flag = 0
 
     def set_sign_position_list(self, _sign_position_list):
         self.sign_position_list = _sign_position_list
@@ -27,7 +28,9 @@ class SerialIO:
     def set_middle(self, _middle):
         self.middle = _middle
 
-
+    def __do_flag__(self):
+        if self.flag > self.mode:
+            self.mode = self.flag
 
     # 拆分小数点
     @staticmethod
@@ -59,6 +62,7 @@ class SerialIO:
             position = [None, None]
             position[0] = int((_position[0] - self.middle[0]) * self.K * 100)
             position[1] = int((self.middle[1] - _position[1]) * self.K * 100)
+            print("摄像头读取到的位置:{}, 发出去的位置:{}".format(_position, position))
 
             # quadrant符号象限位判断
             if position[0] > 0:
@@ -96,8 +100,9 @@ class SerialIO:
         self.state = None # 清空上一次数据
         self.mode = None
 
-        data = self.serial.read()
+        data = self.serial.read(len = -1, timeout = -1)
         if data:
+            print("data:len: ", len(data),"type:", type(data))
             print("\nreceive: ", data) # b'\xa1\xa2\x03\x01\xfe'
             
             unpackaged_data = unpack("<ccBBc", data) # type = tuple
@@ -106,6 +111,8 @@ class SerialIO:
                     if unpackaged_data[4] == b"\xfe":
                         self.state = unpackaged_data[2]
                         self.mode = unpackaged_data[3]
+                        self.__do_flag__()
+                        print("after do flag, self.mode:", self.mode)
                         return True
 
                     else: print("missing data")

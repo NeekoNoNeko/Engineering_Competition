@@ -7,7 +7,7 @@ project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 project\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 project\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
 project\main.o: ../Drivers/CMSIS/Include/core_cm4.h
-project\main.o: D:\Kelil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+project\main.o: D:\WorkTool\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 project\main.o: ../Drivers/CMSIS/Include/cmsis_version.h
 project\main.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 project\main.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -15,7 +15,7 @@ project\main.o: ../Drivers/CMSIS/Include/mpu_armv7.h
 project\main.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
 project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-project\main.o: D:\Kelil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+project\main.o: D:\WorkTool\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
 project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
 project\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
@@ -36,12 +36,12 @@ project\main.o: ../Core/Inc/usart.h
 project\main.o: ..\SYSTEM\sys.h
 project\main.o: ../Drivers/CMSIS/Include/core_cm4.h
 project\main.o: ..\SYSTEM\fifo.h
-project\main.o: D:\Kelil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+project\main.o: D:\WorkTool\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 project\main.o: ../Core/Inc/gpio.h
 project\main.o: ..\SYSTEM\delay.h
 project\main.o: ..\BSP\Emm_V5.h
 project\main.o: ..\BSP\Servo.h
-project\main.o: D:\Kelil_v5\ARM\ARMCC\Bin\..\include\math.h
+project\main.o: D:\WorkTool\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 project\main.o: ..\BSP\key.h
 project\main.o: ..\BSP\motor.h
 project\main.o: ..\BSP\position.h
