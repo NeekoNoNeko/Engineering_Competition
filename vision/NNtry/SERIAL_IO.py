@@ -6,8 +6,8 @@ class SerialIO:
     def __init__(self):
         self.device = "/dev/ttyS0" # ports = uart.list_devices() # 列出当前可用的串口
         self.serial = uart.UART(self.device, 9600)
-        self.K = 114514
-        self.middle = (160, 120)
+        self.K = 2.9083
+        self.middle = (224, 224)
 
         self.sign_position_list = None
         self.coordinate_list = None
@@ -50,6 +50,10 @@ class SerialIO:
             bytes_content += pack("<8B", self.sign_position_list[0], self.sign_position_list[1], self.sign_position_list[2],
                                         self.coordinate_list[0], self.coordinate_list[1], self.coordinate_list[2],
                                         self.coordinate_list[3], self.coordinate_list[4])
+            print(
+                "aa-bb-颜色标志位(药板):{}-颜色标志位(药瓶):{}-状态标志位:{}-象限标志位:{}-x坐标整数:{}-x坐标小数:{}-y坐标整数:{}-y坐标小数:{}-ff".format(self.sign_position_list[0],
+                self.sign_position_list[1], self.sign_position_list[2], self.coordinate_list[0], self.coordinate_list[1],
+                self.coordinate_list[2], self.coordinate_list[3], self.coordinate_list[4]))
         else:
             # 得到摄像头中心与小球的真实距离
             position = [None, None]
@@ -73,6 +77,9 @@ class SerialIO:
 
             bytes_content += pack("<8B", self.sign_position_list[0], self.sign_position_list[1], self.sign_position_list[2],
                                         quadrant, x_left, x_right, y_left, y_right)
+            print(
+                "aa-bb-颜色标志位(药板):{}-颜色标志位(药瓶):{}-状态标志位:{}-象限标志位:{}-x坐标整数:{}-x坐标小数:{}-y坐标整数:{}-y坐标小数:{}-ff".format(self.sign_position_list[0],
+                self.sign_position_list[1], self.sign_position_list[2], quadrant, x_left, x_right, y_left, y_right))
 
         bytes_content += b'\xFF'
         print("send: ", bytes_content.hex("-"))

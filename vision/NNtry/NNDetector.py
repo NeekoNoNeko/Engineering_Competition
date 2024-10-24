@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     nnDetector = NNDetector(_detector=detector)
     while not app.need_exit():
-        img = cam.read()
+        img = cam.read().lens_corr(strength=1.5)	# 调整strength的值直到画面不再畸变
         position_list, img = nnDetector.detect(colour_number=0, _img=img) # 测试时修改 0:red 1:blue 2:green
         dis.show(img)
 
